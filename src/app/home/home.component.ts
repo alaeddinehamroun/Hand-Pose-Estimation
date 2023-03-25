@@ -9,23 +9,35 @@ import { Camera } from '@mediapipe/camera_utils'
 })
 export class HomeComponent implements AfterViewInit, OnInit {
 
-
-  @Input() inputValue: number = 1;
+  private ws!: WebSocket;
+  public message!: any;
   @ViewChild('video') video!: ElementRef<HTMLVideoElement>;
   @ViewChild('canvas') canvas!: ElementRef<HTMLCanvasElement>;
   options: any
   hands!: Hands
   ngOnInit(): void {
+    this.ws = new WebSocket('ws://localhost:3000');
 
+    this.ws.onopen = () => {
+      console.log('WebSocket connection established');
+    };
+
+    this.ws.onmessage = (event) => {
+      console.log(`Received message: ${event.data}`);
+      this.message = event.data;
+    };
+
+    this.ws.onclose = () => {
+      console.log('WebSocket connection closed');
+    };
 
   }
-  getInputValue(){
-    return this.inputValue
+  public sendMessage() {
+    this.ws.send(this.message);
+    console.log(`Sent message: ${this.message}`);
   }
-  modifier(newValue: any) {
-    this.inputValue=newValue;
 
-  }
+
   ngAfterViewInit() {
     this.options = {
       maxNumHands: 2,
@@ -47,6 +59,9 @@ export class HomeComponent implements AfterViewInit, OnInit {
     this.hands.setOptions(this.options);
 
     this.hands.onResults((results) => {
+      // this.message= results.multiHandLandmarks[0][0]['x'].toString()
+      // this.sendMessage()
+      // console.log(this.message)
       canvasCtx!.save();
       canvasCtx!.clearRect(0, 0, canvasElement.width, canvasElement.height);
       canvasCtx!.drawImage(

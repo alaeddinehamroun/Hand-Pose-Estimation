@@ -1,8 +1,51 @@
-<div class="container">
-  <video #video class="input_video"></video>
-  <canvas #canvas class="output_canvas" width="1280px" height="720px"></canvas>
-</div>
+<div class="drawer drawer-mobile absolute">
+  <input id="my-drawer-2" type="checkbox" class="drawer-toggle" />
+  <div class="drawer-content flex flex-col items-center justify-center">
+    <!-- Page content here -->
 
-<input type="text" [(ngModel)]="inputValue">
-<hr>
-<div>{{inputValue}}</div>
+    <div class="hero bg-base-300">
+      <div class="hero-content text-center">
+        <div class="">
+          <p class="text-2xl font-bold mb-3">Get Ready</p>
+          <div class="mockup-window border text-success bg-base-100">
+            <video #video class="input_video"></video>
+            <canvas #canvas class="output_canvas" width="1280px" height="720px"></canvas>
+          </div>
+          <button class="btn btn-primary mt-2">Connect</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- <div class="alert alert-error shadow-lg">
+      <div>
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none"
+          viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span>Error! Task failed successfully.</span>
+      </div>
+    </div> -->
+
+    <div class="flex justify-center">
+      <ul class="steps">
+        <li class="step step-success">Log in</li>
+        <li class="step step-success">Configure</li>
+        <li class="step step-info">Setup environment</li>
+        <li class="step step-neutral">Start</li>
+      </ul>
+    </div>
+
+
+
+  </div>
+  <div class="drawer-side">
+    <label for="my-drawer-2" class="drawer-overlay"></label>
+    <ul class="menu p-4 w-80 bg-base-100 text-base-content">
+      <!-- Sidebar content here -->
+      <li><a>Sidebar Item 1</a></li>
+      <li><a>Sidebar Item 2</a></li>
+    </ul>
+
+  </div>
+</div>

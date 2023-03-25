@@ -1,0 +1,57 @@
+<div class="hero items-center justify-center h-screen">
+  <div class="hero-content text-center">
+    <div class="w-full max-w-md">
+      <h2 class="mb-3 text-3xl font-semibold text-center">Login</h2>
+
+      <form (ngSubmit)="onSubmit()" #loginForm="ngForm" class="space-y-8 ng-untouched ng-pristine ng-valid">
+        <div class="space-y-4">
+
+          <div class="space-y-2">
+            <div class="flex justify-between">
+              <label for="password" class="text-sm">Password</label>
+
+            </div>
+            <input [ngClass]="{
+              'input-error': passwordInput.invalid  && (passwordInput.dirty || passwordInput.touched),
+              'input-success': passwordInput.valid && (passwordInput.dirty || passwordInput.touched)
+             }" type="password" name="password" id="password" placeholder="Enter password here"
+              required minlength="8" [(ngModel)]="user.password" #passwordInput="ngModel"
+              class="w-full max-w-xs input input-bordered">
+
+            <div class="alert alert-error shadow-lg"
+              *ngIf="passwordInput.errors && (passwordInput.dirty || passwordInput.touched)">
+              <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none"
+                  viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span *ngIf="passwordInput.errors['required']">Password is required</span>
+                <span *ngIf="passwordInput.errors['minlength']">Password must be at least 8
+                  long</span>
+              </div>
+            </div>
+
+
+          </div>
+          <a rel="noopener noreferrer" href="#" class="text-xs hover:underline dark:text-gray-400">Forgot
+            password?</a>
+        </div>
+        <button type="submit" [disabled]="loginForm.invalid" class="w-full font-semibold btn btn-primary">Sign
+          in</button>
+        <div class="alert alert-error shadow-lg" *ngIf="errorMessage">
+          <div>
+            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none"
+              viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>{{ errorMessage }}</span>
+          </div>
+        </div>
+
+      </form>
+    </div>
+
+  </div>
+</div>
