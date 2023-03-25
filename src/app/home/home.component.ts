@@ -1,5 +1,5 @@
-import { AfterViewInit, Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
-import { Hands, Results, HAND_CONNECTIONS } from '@mediapipe/hands';
+import { AfterContentChecked, AfterViewInit, Component, DoCheck, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { Hands, Results, HAND_CONNECTIONS, Options } from '@mediapipe/hands';
 import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils';
 import { Camera } from '@mediapipe/camera_utils'
 @Component({
@@ -7,29 +7,79 @@ import { Camera } from '@mediapipe/camera_utils'
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
-export class HomeComponent implements AfterViewInit, OnInit {
+export class HomeComponent implements AfterViewInit, OnInit, DoCheck {
 
   private ws!: WebSocket;
   public message!: any;
   @ViewChild('video') video!: ElementRef<HTMLVideoElement>;
   @ViewChild('canvas') canvas!: ElementRef<HTMLCanvasElement>;
-  options: any
-  hands!: Hands
+  private options: Options = {
+    selfieMode: false,
+    maxNumHands: 1,
+    modelComplexity: 1,
+    minDetectionConfidence: 0.5,
+    minTrackingConfidence: 0.5
+  }
+  private hands!: Hands;
+
+  public maxNumHands: number=1;
+  public modelComplexity: 0 | 1 = 1;
+  public minDetectionConfidence: number = 0.5;
+  public minTrackingConfidence: number = 0.5;
+  public selfieMode: boolean = false;
+
+  public loaded = true;
+
+  ngDoCheck(): void {
+    if (this.maxNumHands !== this.options.maxNumHands) {
+      this.loaded=false
+      this.options.maxNumHands= this.maxNumHands
+      this.hands.setOptions(this.options)
+    }
+
+    if (this.modelComplexity !== this.options.modelComplexity) {
+      this.options.modelComplexity = this.modelComplexity
+      this.hands.setOptions(this.options)
+    }
+
+    if (this.minDetectionConfidence !== this.options.minDetectionConfidence) {
+      this.options.minDetectionConfidence = this.minDetectionConfidence
+      this.hands.setOptions(this.options)
+    }
+
+    if (this.minTrackingConfidence !== this.options.minTrackingConfidence) {
+      this.options.minTrackingConfidence = this.minTrackingConfidence
+      this.hands.setOptions(this.options)
+    }
+
+    if (this.selfieMode !== this.options.selfieMode) {
+      this.options.selfieMode = this.selfieMode
+      this.hands.setOptions(this.options)
+    }
+  }
   ngOnInit(): void {
-    this.ws = new WebSocket('ws://localhost:3000');
+    this.hands = new Hands({
+      locateFile: (file) => {
+        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+      }
+    });
+    this.hands.setOptions(this.options);
 
-    this.ws.onopen = () => {
-      console.log('WebSocket connection established');
-    };
+    // console.log('init' + this.options.maxNumHands)
+    // this.ws = new WebSocket('ws://localhost:3000');
 
-    this.ws.onmessage = (event) => {
-      console.log(`Received message: ${event.data}`);
-      this.message = event.data;
-    };
+    // this.ws.onopen = () => {
+    //   console.log('WebSocket connection established');
+    // };
 
-    this.ws.onclose = () => {
-      console.log('WebSocket connection closed');
-    };
+    // this.ws.onmessage = (event) => {
+    //   console.log(`Received message: ${event.data}`);
+    //   this.message = event.data;
+    // };
+
+    // this.ws.onclose = () => {
+    //   console.log('WebSocket connection closed');
+    // };
 
   }
   public sendMessage() {
@@ -39,26 +89,15 @@ export class HomeComponent implements AfterViewInit, OnInit {
 
 
   ngAfterViewInit() {
-    this.options = {
-      maxNumHands: 2,
-      modelComplexity: 1,
-      minDetectionConfidence: 0.5,
-      minTrackingConfidence: 0.5
-    }
+
     const videoElement = this.video.nativeElement;
     const canvasElement = this.canvas.nativeElement
     const canvasCtx = canvasElement.getContext("2d");
 
 
-
-    this.hands = new Hands({
-      locateFile: (file) => {
-        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
-      }
-    });
-    this.hands.setOptions(this.options);
-
     this.hands.onResults((results) => {
+
+      this.loaded = true;
       // this.message= results.multiHandLandmarks[0][0]['x'].toString()
       // this.sendMessage()
       // console.log(this.message)
@@ -75,6 +114,8 @@ export class HomeComponent implements AfterViewInit, OnInit {
       }
       canvasCtx!.restore();
     });
+
+
     const camera = new Camera(videoElement, {
       onFrame: async () => {
         await this.hands.send({ image: videoElement });
