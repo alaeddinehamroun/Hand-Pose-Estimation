@@ -2,6 +2,7 @@ import { AfterContentChecked, AfterViewInit, Component, DoCheck, ElementRef, Inp
 import { Hands, Results, HAND_CONNECTIONS, Options } from '@mediapipe/hands';
 import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils';
 import { Camera } from '@mediapipe/camera_utils'
+import { WebSocketService } from '../services/web-socket.service';
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
@@ -22,7 +23,7 @@ export class HomeComponent implements AfterViewInit, OnInit, DoCheck {
   }
   private hands!: Hands;
 
-  public maxNumHands: number=1;
+  public maxNumHands: number = 1;
   public modelComplexity: 0 | 1 = 1;
   public minDetectionConfidence: number = 0.5;
   public minTrackingConfidence: number = 0.5;
@@ -30,10 +31,11 @@ export class HomeComponent implements AfterViewInit, OnInit, DoCheck {
 
   public loaded = true;
 
+  constructor(private webSocketService: WebSocketService) { }
   ngDoCheck(): void {
     if (this.maxNumHands !== this.options.maxNumHands) {
-      this.loaded=false
-      this.options.maxNumHands= this.maxNumHands
+      this.loaded = false
+      this.options.maxNumHands = this.maxNumHands
       this.hands.setOptions(this.options)
     }
 
@@ -65,26 +67,14 @@ export class HomeComponent implements AfterViewInit, OnInit, DoCheck {
     });
     this.hands.setOptions(this.options);
 
-    // console.log('init' + this.options.maxNumHands)
-    // this.ws = new WebSocket('ws://localhost:3000');
+    this.webSocketService.connect()
 
-    // this.ws.onopen = () => {
-    //   console.log('WebSocket connection established');
-    // };
+    // Handle incoming messages
+    this.webSocketService.onMessage().subscribe((message: any) => {
+      this.message = message;
+      console.log("Received message: "+this.message)
+    });
 
-    // this.ws.onmessage = (event) => {
-    //   console.log(`Received message: ${event.data}`);
-    //   this.message = event.data;
-    // };
-
-    // this.ws.onclose = () => {
-    //   console.log('WebSocket connection closed');
-    // };
-
-  }
-  public sendMessage() {
-    this.ws.send(this.message);
-    console.log(`Sent message: ${this.message}`);
   }
 
 
@@ -95,17 +85,16 @@ export class HomeComponent implements AfterViewInit, OnInit, DoCheck {
     const canvasCtx = canvasElement.getContext("2d");
 
 
-    this.hands.onResults((results) => {
+    this.hands.onResults((results: Results) => {
 
       this.loaded = true;
-      // this.message= results.multiHandLandmarks[0][0]['x'].toString()
-      // this.sendMessage()
-      // console.log(this.message)
+
       canvasCtx!.save();
       canvasCtx!.clearRect(0, 0, canvasElement.width, canvasElement.height);
       canvasCtx!.drawImage(
         results.image, 0, 0, canvasElement.width, canvasElement.height);
-      if (results.multiHandLandmarks) {
+      if (results.multiHandLandmarks.length>0) {
+        this.webSocketService.send(results.multiHandLandmarks)
         for (const landmarks of results.multiHandLandmarks) {
           drawConnectors(canvasCtx!, landmarks, HAND_CONNECTIONS,
             { color: '#00FF00', lineWidth: 5 });
