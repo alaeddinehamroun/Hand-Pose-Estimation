@@ -10,7 +10,6 @@ import { WebSocketService } from '../services/web-socket.service';
 })
 export class HomeComponent implements AfterViewInit, OnInit, DoCheck {
 
-  private ws!: WebSocket;
   public message!: any;
   @ViewChild('video') video!: ElementRef<HTMLVideoElement>;
   @ViewChild('canvas') canvas!: ElementRef<HTMLCanvasElement>;
@@ -72,7 +71,7 @@ export class HomeComponent implements AfterViewInit, OnInit, DoCheck {
     // Handle incoming messages
     this.webSocketService.onMessage().subscribe((message: any) => {
       this.message = message;
-      console.log("Received message: "+this.message)
+      console.log("Received message: " + this.message)
     });
 
   }
@@ -93,13 +92,38 @@ export class HomeComponent implements AfterViewInit, OnInit, DoCheck {
       canvasCtx!.clearRect(0, 0, canvasElement.width, canvasElement.height);
       canvasCtx!.drawImage(
         results.image, 0, 0, canvasElement.width, canvasElement.height);
-      if (results.multiHandLandmarks.length>0) {
-        this.webSocketService.send(results.multiHandLandmarks)
-        for (const landmarks of results.multiHandLandmarks) {
-          drawConnectors(canvasCtx!, landmarks, HAND_CONNECTIONS,
-            { color: '#00FF00', lineWidth: 5 });
-          drawLandmarks(canvasCtx!, landmarks, { color: '#FF0000', lineWidth: 2 });
+      if (results.multiHandLandmarks.length > 0) {
+
+        // Get wrist landmark from first hand
+        const wrist_landmark = {
+          x: results.multiHandLandmarks[0][0].x,
+          y: results.multiHandLandmarks[0][0].y,
+          z: results.multiHandLandmarks[0][0].z
         }
+        // Get thumb_tip landmark from first hand
+        const thumb_tip_landmark = {
+          x: results.multiHandLandmarks[0][4].x,
+          y: results.multiHandLandmarks[0][4].y,
+          z: results.multiHandLandmarks[0][4].z
+        }
+        // Get index_finger_tip landmark from first hand
+        const index_finger_tip_landmark = {
+          x: results.multiHandLandmarks[0][8].x,
+          y: results.multiHandLandmarks[0][8].y,
+          z: results.multiHandLandmarks[0][8].z
+        }
+        console.log(index_finger_tip_landmark)
+        const landmarks = [
+          wrist_landmark,
+          thumb_tip_landmark,
+          index_finger_tip_landmark
+        ]
+        this.webSocketService.send(landmarks)
+
+        // drawConnectors(canvasCtx!, landmarks, HAND_CONNECTIONS,
+        //   { color: '#00FF00', lineWidth: 5 });
+        drawLandmarks(canvasCtx!, landmarks, { color: '#FF0000', lineWidth: 2 });
+
       }
       canvasCtx!.restore();
     });
