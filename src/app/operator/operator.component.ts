@@ -171,12 +171,40 @@ export class OperatorComponent implements OnInit, AfterViewInit, OnChanges {
           z: results.multiHandLandmarks[0][8].z
         }
 
+        const indew_finger_mcp = {
+          x: results.multiHandLandmarks[0][5].x,
+          y: results.multiHandLandmarks[0][5].y,
+          z: results.multiHandLandmarks[0][5].z
+        }
+
+        const pinky_mcp = {
+          x: results.multiHandLandmarks[0][17].x,
+          y: results.multiHandLandmarks[0][17].y,
+          z: results.multiHandLandmarks[0][17].z
+        }
         const landmarks = [
           wrist_landmark,
           thumb_tip_landmark,
           index_finger_tip_landmark
         ]
-        this.webSocketService.send(landmarks)
+
+
+        const distance = ((thumb_tip_landmark.x - index_finger_tip_landmark.x) ** 2 + (thumb_tip_landmark.y - index_finger_tip_landmark.y) ** 2) ** 0.5
+        const rotation = (indew_finger_mcp.z - pinky_mcp.z)
+        const up_n_down = indew_finger_mcp.z
+
+
+
+        const sent = [
+          Math.trunc(distance*100),
+          //Math.trunc(rotation * 10000),
+          //Math.trunc(up_n_down*10000),
+          //Math.trunc(wrist_landmark.x*10000),
+          //Math.trunc(wrist_landmark.y*10000),
+          //Math.trunc(wrist_landmark.z*10**8)
+        ]
+
+        this.webSocketService.send(sent)
 
         // drawConnectors(canvasCtx!, landmarks, HAND_CONNECTIONS,
         //   { color: '#00FF00', lineWidth: 5 });

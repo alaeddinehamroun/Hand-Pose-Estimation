@@ -14,7 +14,7 @@ export class WebSocketService {
   constructor() { }
 
   public connect(): void {
-    this.socket$ = webSocket('ws://localhost:3000');
+    this.socket$ = webSocket('ws://172.18.173.15:3000');
     this.socket$.subscribe((data) => {
       if (data.encryptionKey && data.iv) {
         this.encryptionKey = CryptoJS.enc.Hex.parse(data.encryptionKey);
