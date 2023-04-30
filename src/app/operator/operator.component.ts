@@ -11,7 +11,7 @@ import { WebSocketService } from '../services/web-socket.service';
 })
 
 
-export class OperationComponent implements OnInit, AfterViewInit, OnChanges {
+export class OperatorComponent implements OnInit, AfterViewInit, OnChanges {
 
 
   public message!: any;
@@ -33,7 +33,6 @@ export class OperationComponent implements OnInit, AfterViewInit, OnChanges {
   @Input() public selfieMode: boolean = false;
 
   public loaded = false;
-  @Input('mydiv') public mydiv: any
   constructor(private webSocketService: WebSocketService) { }
   ngOnChanges(changes: SimpleChanges): void {
     if (this.loaded) {
@@ -81,7 +80,7 @@ export class OperationComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   private registerDragElement() {
-    const elmnt = document.getElementById(this.mydiv);
+    const elmnt = document.getElementById('mydiv1');
 
     let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
 

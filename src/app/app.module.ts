@@ -10,7 +10,8 @@ import { SharedModule } from './shared/shared.module';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { CommonModule } from '@angular/common';
-import { OperationComponent } from './operation/operator.component';
+import { OperationComponent } from './operation/operation.component';
+import { OperatorComponent } from './operator/operator.component';
 
 @NgModule({
   declarations: [
@@ -18,6 +19,7 @@ import { OperationComponent } from './operation/operator.component';
     HomeComponent,
     LoginComponent,
     OperationComponent,
+    OperatorComponent
   ],
   providers: [
     {
