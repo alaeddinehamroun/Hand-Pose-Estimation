@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { map } from 'rxjs/operators';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import * as CryptoJS from 'crypto-js';
+import { Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -11,10 +12,12 @@ export class WebSocketService {
   private encryptionKey!: any;
   private iv!: any;
 
+  private ttsSubject = new Subject<number>();
+  tts$ = this.ttsSubject.asObservable();
   constructor() { }
 
   public connect(): void {
-    this.socket$ = webSocket('ws://172.18.173.15:3000');
+    this.socket$ = webSocket('ws://localhost:3000');
     this.socket$.subscribe((data) => {
       if (data.encryptionKey && data.iv) {
         this.encryptionKey = CryptoJS.enc.Hex.parse(data.encryptionKey);
@@ -26,12 +29,18 @@ export class WebSocketService {
   }
 
   public send(message: any): void {
+    const startTime = performance.now();
+
     const encryptedMessage = CryptoJS.AES.encrypt(JSON.stringify(message), this.encryptionKey, {
       iv: this.iv,
       padding: CryptoJS.pad.Pkcs7,
       mode: CryptoJS.mode.CBC
     }).toString();
     this.socket$.next(encryptedMessage);
+    const endTime = performance.now();
+    const tts = endTime - startTime;  // tts: time to send data to server
+    this.ttsSubject.next(tts);
+    //console.log(`Tts: ${tts}ms`);
   }
 
   public onMessage(): any {

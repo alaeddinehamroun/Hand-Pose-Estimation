@@ -32,6 +32,9 @@ export class OperatorComponent implements OnInit, AfterViewInit, OnChanges {
   @Input() public minTrackingConfidence: number = 0.5;
   @Input() public selfieMode: boolean = false;
 
+  @Output() sendFps: EventEmitter<number> = new EventEmitter<number>();
+
+
   public loaded = false;
   constructor(private webSocketService: WebSocketService) { }
   ngOnChanges(changes: SimpleChanges): void {
@@ -196,7 +199,7 @@ export class OperatorComponent implements OnInit, AfterViewInit, OnChanges {
 
 
         const sent = [
-          Math.trunc(distance*100),
+          Math.trunc(distance * 100),
           //Math.trunc(rotation * 10000),
           //Math.trunc(up_n_down*10000),
           //Math.trunc(wrist_landmark.x*10000),
@@ -217,12 +220,17 @@ export class OperatorComponent implements OnInit, AfterViewInit, OnChanges {
 
     const camera = new Camera(videoElement, {
       onFrame: async () => {
+        const startTime = performance.now();
         await this.hands.send({ image: videoElement });
+        const endTime = performance.now();
+        const fps = Math.round(1000 / (endTime - startTime));
+        this.sendFps.emit(fps)
+        //console.log(`FPS: ${fps}`);
+        //console.log(`Processing time: ${(endTime - startTime)/1000}`)
       },
       width: 1280,
       height: 720
     });
     camera.start();
-
   }
 }

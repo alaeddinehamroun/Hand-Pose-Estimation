@@ -32,7 +32,7 @@ import { OperatorComponent } from './operator/operator.component';
     AppRoutingModule,
     FormsModule,
     HttpClientModule,
-    CommonModule
+    CommonModule,
   ],
   bootstrap: [AppComponent]
 })
