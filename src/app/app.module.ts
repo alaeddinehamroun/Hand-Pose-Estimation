@@ -12,6 +12,9 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { CommonModule } from '@angular/common';
 import { OperationComponent } from './operation/operation.component';
 import { OperatorComponent } from './operator/operator.component';
+import { SequencesComponent } from './sequences/sequences.component';
+import { JointsComponent } from './joints/joints.component';
+import { SettingsComponent } from './settings/settings.component';
 
 @NgModule({
   declarations: [
@@ -19,7 +22,10 @@ import { OperatorComponent } from './operator/operator.component';
     HomeComponent,
     LoginComponent,
     OperationComponent,
-    OperatorComponent
+    OperatorComponent,
+    SequencesComponent,
+    JointsComponent,
+    SettingsComponent
   ],
   providers: [
     {
