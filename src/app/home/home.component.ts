@@ -9,7 +9,7 @@ import { DataSharingService } from '../services/data-sharing.service';
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
-  activeTab: string = 'Overview';
+  activeTab: string = 'Mediapipe Settings';
   public joint: string = "stop"
   public jointImage: string = "../../assets/images/a.png"
 
