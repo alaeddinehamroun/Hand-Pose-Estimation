@@ -23,3 +23,6 @@
   left: 0;
   top: 0;
 }
+#remote-container:empty::before {
+  content: url('/../../assets/images/loadingArm.gif');
+}

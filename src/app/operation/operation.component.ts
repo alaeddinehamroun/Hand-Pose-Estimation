@@ -1,5 +1,7 @@
-import { AfterViewInit, Component, Input } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { FormBuilder, FormControl, Validators } from '@angular/forms';
 
+declare var apiRTC: any;
 @Component({
   selector: 'app-operation',
   templateUrl: './operation.component.html',
@@ -7,61 +9,71 @@ import { AfterViewInit, Component, Input } from '@angular/core';
 })
 export class OperationComponent implements AfterViewInit {
   ngAfterViewInit() {
-    this.registerDragElement()
-  }
-  private registerDragElement() {
-    const elmnt = document.getElementById('mydiv2');
-
-    let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-
-    const dragMouseDown = (e: any) => {
-      e = e || window.event;
-      // get the mouse cursor position at startup:
-      pos3 = e.clientX;
-      pos4 = e.clientY;
-      document.onmouseup = closeDragElement;
-      // call a function whenever the cursor moves:
-      document.onmousemove = elementDrag;
-    };
-
-    const elementDrag = (e: any) => {
-      e = e || window.event;
-      // calculate the new cursor position:
-      pos1 = pos3 - e.clientX;
-      pos2 = pos4 - e.clientY;
-      pos3 = e.clientX;
-      pos4 = e.clientY;
-      // set the element's new position:
-      elmnt!.style.top = elmnt!.offsetTop - pos2 + 'px';
-      elmnt!.style.left = elmnt!.offsetLeft - pos1 + 'px';
-    };
-
-    const closeDragElement = () => {
-      /* stop moving when mouse button is released:*/
-      document.onmouseup = null;
-      document.onmousemove = null;
-    };
-
-    if (document.getElementById(elmnt!.id + 'header')) {
-      /* if present, the header is where you move the DIV from:*/
-      document.getElementById(elmnt!.id + 'header')!.onmousedown = dragMouseDown;
-    } else {
-      /* otherwise, move the DIV from anywhere inside the DIV:*/
-      elmnt!.onmousedown = dragMouseDown;
-    }
   }
 
-  public allowDrop(ev: any): void {
-    ev.preventDefault();
+  constructor() {
   }
 
-  public drag(ev: any): void {
-    ev.dataTransfer.setData("text", ev.target.id);
+  ngOnInit(): void {
+      this.getOrcreateConversation;
   }
 
-  public drop(ev: any): void {
-    ev.preventDefault();
-    var data = ev.dataTransfer.getData("text");
-    ev.target.appendChild(document.getElementById(data));
+
+
+  getOrcreateConversation() {
+    var localStream: any;
+
+    //==============================
+    // 1/ CREATE USER AGENT
+    //==============================
+    var ua = new apiRTC.UserAgent({
+      uri: 'apzkey:myDemoApiKey'
+    });
+
+    //==============================
+    // 2/ REGISTER
+    //==============================
+    ua.register().then((session: { getConversation: (arg0: any) => any; }) => {
+
+      //==============================
+      // 3/ CREATE CONVERSATION
+      //==============================
+      const conversation = session.getConversation("1234");
+
+      //==========================================================
+      // 4/ ADD EVENT LISTENER : WHEN NEW STREAM IS AVAILABLE IN CONVERSATION
+      //==========================================================
+      conversation.on('streamListChanged', (streamInfo: any) => {
+        console.log("streamListChanged :", streamInfo);
+        if (streamInfo.listEventType === 'added') {
+          if (streamInfo.isRemote === true) {
+            conversation.subscribeToMedia(streamInfo.streamId)
+              .then((stream: any) => {
+                console.log('subscribeToMedia success');
+              }).catch((err: any) => {
+                console.error('subscribeToMedia error', err);
+              });
+          }
+        }
+      });
+      //=====================================================
+      // 4 BIS/ ADD EVENT LISTENER : WHEN STREAM IS ADDED/REMOVED TO/FROM THE CONVERSATION
+      //=====================================================
+      conversation.on('streamAdded', (stream: any) => {
+        stream.addInDiv('remote-container', 'remote-media-' + stream.streamId, {}, false);
+      }).on('streamRemoved', (stream: any) => {
+        stream.removeFromDiv('remote-container', 'remote-media-' + stream.streamId);
+      });
+
+      conversation.join()
+            .then((response: any) => {
+              //==============================
+              // 7/ PUBLISH LOCAL STREAM
+              //==============================
+            }).catch((err: any) => {
+              console.error('Conversation join error', err);
+            });
+    });
   }
+
 }

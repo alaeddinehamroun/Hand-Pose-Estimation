@@ -18,17 +18,39 @@ export class WebSocketService {
 
   public connect(): void {
     this.socket$ = webSocket('ws://localhost:3000');
-    this.socket$.subscribe((data) => {
-      if (data.encryptionKey && data.iv) {
-        this.encryptionKey = CryptoJS.enc.Hex.parse(data.encryptionKey);
-        this.iv = CryptoJS.enc.Hex.parse(data.iv);
-        console.log(this.encryptionKey)
-        console.log(this.iv)
+
+    this.socket$.subscribe({
+      next: (data) => {
+        if (data.encryptionKey && data.iv) {
+          this.encryptionKey = CryptoJS.enc.Hex.parse(data.encryptionKey);
+          this.iv = CryptoJS.enc.Hex.parse(data.iv);
+          // console.log(this.encryptionKey);
+          // console.log(this.iv);
+        } else {
+          console.log('WebSocket connection opened');
+        }
+      },
+      error: (error) => {
+        // console.log("------------------------------")
+        // console.log("------------------------------")
+
+        console.error('WebSocket error:', error);
+
+        this.disconnect();
+        this.connect();
+        // console.log("------------------------------")
+          // console.log("------------------------------")
+
+      },
+      complete: () => {
+        console.log('WebSocket connection closed');
       }
     });
   }
 
+
   public send(message: any): void {
+    // console.log(this.socket$.closed);
     const startTime = performance.now();
 
     const encryptedMessage = CryptoJS.AES.encrypt(JSON.stringify(message), this.encryptionKey, {
