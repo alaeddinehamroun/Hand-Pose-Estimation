@@ -17,7 +17,7 @@ export class WebSocketService {
   constructor() { }
 
   public connect(): void {
-    this.socket$ = webSocket('ws://localhost:3000');
+    this.socket$ = webSocket('ws://192.168.206.112:3000');
 
     this.socket$.subscribe({
       next: (data) => {

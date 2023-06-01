@@ -36,6 +36,7 @@ export class OperatorComponent implements OnInit, AfterViewInit, OnChanges {
   @Input() public minTrackingConfidence: number = 0.5;
   @Input() public selfieMode: boolean = false;
   @Input() public joint: string = "stop";
+  @Input() public toggleMediapipe!: boolean
 
   @Output() sendFps: EventEmitter<number> = new EventEmitter<number>();
 
@@ -46,10 +47,11 @@ export class OperatorComponent implements OnInit, AfterViewInit, OnChanges {
   public startDelay: Date = new Date();
   public move: Move = new Move(0, 0, 0, 0, 0, 0, 0);
 
+
   public loaded = false;
   constructor(private webSocketService: WebSocketService, private dataSharingService: DataSharingService) {
     this.subscription = this.dataSharingService.getData().subscribe(value => {
-      if (value.constructor.name == "Serie") {
+      if (value.constructor.name == "Sequence") {
         this.cursor = 0;
         this.playingSerie = value;
       }
@@ -88,7 +90,72 @@ export class OperatorComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   ngOnInit(): void {
-    console.log(this.minDetectionConfidence)
+
+    document.addEventListener("keydown", (event: KeyboardEvent) => {
+      if (event.code === "ArrowRight") {
+        if (this.joint == "base") {
+          this.move.base += 5;
+
+        }
+        if (this.joint == "rotation") {
+          this.move.rotation += 5;
+        }
+        if (this.joint == "gripper") {
+          this.move.gripper += 5;
+        }
+
+      }
+      else if (event.code === "ArrowLeft") {
+
+        if (this.joint == "base") {
+          this.move.base -= 5;
+        }
+        if (this.joint == "rotation") {
+          this.move.rotation -= 5;
+        }
+        if (this.joint == "gripper") {
+          this.move.gripper -= 5;
+        }
+      }
+      else if (event.code === "ArrowUp") {
+
+        if (this.joint == "axis1") {
+          this.move.axis1 += 5;
+        }
+        if (this.joint == "axis2") {
+          this.move.axis2 += 5;
+        }
+        if (this.joint == "up_down") {
+          this.move.up_down += 5;
+        }
+
+      }
+      else if (event.code === "ArrowDown") {
+
+        if (this.joint == "axis1") {
+          this.move.axis1 -= 5;
+        }
+        if (this.joint == "axis2") {
+          this.move.axis2 -= 5;
+        }
+        if (this.joint == "up_down") {
+          this.move.up_down -= 5;
+        }
+      }
+
+      const sent = [
+        this.move.base,
+        this.move.axis1,
+        this.move.axis2,
+        this.move.rotation,
+        this.move.up_down,
+        this.move.gripper,
+      ]
+
+      this.webSocketService.send(sent)
+
+
+    });
     this.hands = new Hands({
       locateFile: (file) => {
         return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
@@ -104,6 +171,8 @@ export class OperatorComponent implements OnInit, AfterViewInit, OnChanges {
       console.log("Received message: " + this.message)
     });
 
+
+
   }
 
 
@@ -114,6 +183,7 @@ export class OperatorComponent implements OnInit, AfterViewInit, OnChanges {
     const videoElement = this.video.nativeElement;
     const canvasElement = this.canvas.nativeElement
     const canvasCtx = canvasElement.getContext("2d");
+
 
     this.hands.onResults((results: Results) => {
 
@@ -165,6 +235,30 @@ export class OperatorComponent implements OnInit, AfterViewInit, OnChanges {
 
           }
 
+
+
+          // Move
+          // axis1
+          // :
+          // 65
+          // axis2
+          // :
+          // 45
+          // base
+          // :
+          // -23
+          // delay
+          // :
+          // 0
+          // gripper
+          // :
+          // 38
+          // rotation
+          // :
+          // 52
+          // up_down
+          // :
+          // 145
         }
 
 
@@ -265,30 +359,37 @@ export class OperatorComponent implements OnInit, AfterViewInit, OnChanges {
           var gripperToSend = Math.trunc(distance * 100);
           gripperToSend = gripperToSend != 0 ? gripperToSend : 1;
 
-          this.move.base = this.joint == "base" ? rotationToSend : 0;
-          this.move.axis1 = this.joint == "axis1" ? axis2ToSend : 0;
-          this.move.axis2 = this.joint == "axis2" ? axis2ToSend : 0;
-          this.move.rotation = this.joint == "rotation" ? rotationToSend : 0;
-          this.move.up_down = this.joint == "up_down" ? axis2ToSend : 0;
-          this.move.gripper = this.joint == "gripper" ? gripperToSend : 0;
 
-          this.sendData(); this.playingSerie.playing
+          if (this.toggleMediapipe == true) {
 
-          const sent = [
-            this.move.base,
-            this.move.axis1,
-            this.move.axis2,
-            this.move.rotation,
-            this.move.up_down,
-            this.move.gripper,
-          ]
 
-          this.webSocketService.send(sent)
 
-          drawConnectors(canvasCtx!, landmarks, HAND_CONNECTIONS,
-            { color: '#00FF00', lineWidth: 5 });
-          drawLandmarks(canvasCtx!, landmarks, { color: '#FF0000', lineWidth: 2 });
+            this.move.base = this.joint == "base" ? rotationToSend : 0;
+            this.move.axis1 = this.joint == "axis1" ? axis2ToSend : 0;
+            this.move.axis2 = this.joint == "axis2" ? axis2ToSend : 0;
+            this.move.rotation = this.joint == "rotation" ? rotationToSend : 0;
+            this.move.up_down = this.joint == "up_down" ? axis2ToSend : 0;
+            this.move.gripper = this.joint == "gripper" ? gripperToSend : 0;
 
+            this.sendData(); this.playingSerie.playing
+
+            const sent = [
+              this.move.base,
+              this.move.axis1,
+              this.move.axis2,
+              this.move.rotation,
+              this.move.up_down,
+              this.move.gripper,
+            ]
+
+
+            this.webSocketService.send(sent)
+
+            drawConnectors(canvasCtx!, landmarks, HAND_CONNECTIONS,
+              { color: '#00FF00', lineWidth: 5 });
+            drawLandmarks(canvasCtx!, landmarks, { color: '#FF0000', lineWidth: 2 });
+
+          }
         }
       }
       canvasCtx!.restore();

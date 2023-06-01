@@ -1,28 +1,9 @@
-#mydivheader {
-  padding: 10px;
-  cursor: move;
-  z-index: 10;
-  background-color: #2196f3;
-  color: #fff;
-}
 
-
-.input_video {
-  display: none;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-}
-
-.output_canvas {
-  width: 100%;
-  display: block;
-  position: relative;
-  left: 0;
-  top: 0;
-}
-#remote-container:empty::before {
+/* #remote-container:empty::before {
   content: url('/../../assets/images/loadingArm.gif');
+} */
+
+
+video {
+  height: inherit !important;
 }

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, Validators } from '@angular/forms';
 
 declare var apiRTC: any;
@@ -8,6 +8,8 @@ declare var apiRTC: any;
   styleUrls: ['./operation.component.css']
 })
 export class OperationComponent implements AfterViewInit {
+  @ViewChild('video') video!: ElementRef<HTMLVideoElement>;
+
   ngAfterViewInit() {
   }
 
@@ -15,13 +17,13 @@ export class OperationComponent implements AfterViewInit {
   }
 
   ngOnInit(): void {
-      this.getOrcreateConversation;
+    this.getOrcreateConversation()
+
   }
 
 
 
   getOrcreateConversation() {
-    var localStream: any;
 
     //==============================
     // 1/ CREATE USER AGENT
@@ -60,19 +62,20 @@ export class OperationComponent implements AfterViewInit {
       // 4 BIS/ ADD EVENT LISTENER : WHEN STREAM IS ADDED/REMOVED TO/FROM THE CONVERSATION
       //=====================================================
       conversation.on('streamAdded', (stream: any) => {
+        console.log(stream)
         stream.addInDiv('remote-container', 'remote-media-' + stream.streamId, {}, false);
+        // Add the CSS code to the remote-container div
+        const video = document.getElementById('remote-media-' + stream.streamId);
+        video!.setAttribute('style', 'height: inherit;');
+
       }).on('streamRemoved', (stream: any) => {
         stream.removeFromDiv('remote-container', 'remote-media-' + stream.streamId);
       });
 
-      conversation.join()
-            .then((response: any) => {
-              //==============================
-              // 7/ PUBLISH LOCAL STREAM
-              //==============================
-            }).catch((err: any) => {
-              console.error('Conversation join error', err);
-            });
+      // Join conversation
+      conversation.join().catch((err: any) => {
+        console.error('Conversation join error', err);
+      });
     });
   }
 

@@ -41,7 +41,7 @@ async def receive_messages(websocket, path):
 
 
 async def start_server():
-    async with websockets.serve(receive_messages, "localhost", 3000):
+    async with websockets.serve(receive_messages, "192.168.206.70", 3000):
         await asyncio.Future()  # run forever
 
 asyncio.run(start_server())

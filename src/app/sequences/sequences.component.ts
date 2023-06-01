@@ -53,8 +53,29 @@ export class SequencesComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.sequences.push(new Sequence("Serie1", new Date, false, this.getRandomColor(), []));
-    this.sequences.push(new Sequence("Serie2", new Date, false, this.getRandomColor(), []));
+    this.sequences.push(new Sequence("Position 1", new Date, false, this.getRandomColor(), [new Move(43, -137, 441, -40, -15, 29, 0)]));
+    this.sequences.push(new Sequence("Position 2", new Date, false, this.getRandomColor(), [new Move(-12, 394, 418, 53, -385, 18, 0)]));
+    this.sequences.push(new Sequence("Position 3", new Date, false, this.getRandomColor(), [new Move(146, 158, 29, -142, 235, 37, 0)]));
+    this.sequences.push(new Sequence("Sleep", new Date, false, this.getRandomColor(), [new Move(-138, 149, -279, 52, -396, 35, 0)]));
+    this.sequences.push(new Sequence("Pick", new Date, false, this.getRandomColor(), [
+      new Move(-12, 394, 418, 53, -385, 18, 0),
+      new Move(0, 0, 0, 0, 0, 0, 3000),
+      new Move(-4, 74, 31, 50, 113, 35, 0),
+      new Move(0, 0, 0, 0, 0, 0, 3000),
+      new Move(0, 34, 0, 0, 0, 2, 0),
+      new Move(0, 0, 0, 0, 0, 0, 3000),
+      new Move(84, 146, -118, 48, 124, 0, 0),
+      new Move(0, 0, 0, 0, 0, 0, 3000),
+      new Move(0, 0, 0, 0, 0, 36, 0),
+
+
+
+
+
+
+
+    ]));
+
 
   }
 
@@ -145,6 +166,7 @@ export class SequencesComponent implements OnInit {
 
     this.sequences[index].playing = true;
     this.playingSerie = this.sequences[index];
+    console.log(this.playingSerie)
     this.dataSharingService.sendData(this.playingSerie);
   }
 
